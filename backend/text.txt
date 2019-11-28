@@ -1,0 +1,11 @@
+<This table gives status(closed/in progress) of each grade by choosing board and subject. The objective is to find lagging grades.>
+
+<This table gives the status of all the elements of the selected grade. The objective is to find the lagging element>
+
+<This table shows status of all the actions for the selected element. Objective is to find lagging actions>
+
+<This table shows weeks' progress in actions. This was done so that we can view how many chapters were closed in a particular week.>
+
+<This table shows truncated MIDs and in how many actions it's been closed/in progress. If you see chapter as "01" , it means 19SBAP10PHY"01". If you see chapter as "PHY" , it means 19SBAP10"PHY". This was done so that we can view which chapter is in which state.>
+
+<This table shows weeks' progress of actions for a particular mid. For this, you have to select MID and it should match all the options you have selected so far. This was done so that we can view the progress of a particular MID> 
