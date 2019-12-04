@@ -444,5 +444,5 @@ def render_dashboard():
 
 
 if __name__ == '__main__':
-    server.run(port=5000)
-    # host='0.0.0.0'
+    app.run_server(port=3000)
+# host='0.0.0.0'
