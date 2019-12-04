@@ -14,14 +14,11 @@ external_stylesheets = ["https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/boo
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets, url_base_pathname='/dashboard/')
 
-loc = "data/data.csv"
-data = pd.read_csv(loc)
+loc="data/sample_data.csv"
+data=pd.read_csv(loc)
 ob = mapping.map(data)
 ob.mapping()
 ob.calculations()
-ob.closed_threshold_date()
-ob.closed_threshold_xp_mean()
-
 boards = ob.getBoards()
 subjects = ob.getSubjects()
 grades = ob.getGrades()
@@ -161,7 +158,7 @@ def outputTable(board, subject):
         for i in prog:
             grades.append(i)
             closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['Open'])
+            in_progress.append(prog[i]['In Progress'])
     layout = go.Layout(title='Gradewise  ' + board + ' ' + subject + ' Project Progress',)
     print("Ended 1")
     return {
@@ -196,7 +193,7 @@ def outputTable(board, subject, grade):
         for i in prog:
             element.append(i)
             closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['Open'])
+            in_progress.append(prog[i]['In Progress'])
     layout = go.Layout(title='Elements  of grade ' + grade + ' Progress')
     print("Ended 2")
 
@@ -234,7 +231,7 @@ def outputTable(board, subject, grade, element):
         for i in prog:
             action.append(i)
             closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['Open'])
+            in_progress.append(prog[i]['In Progress'])
 
     layout = go.Layout(title='Actions  of ' + element + ' of grade ' + grade + ' Progress')
     print("ended 3")
@@ -338,7 +335,7 @@ def outputTable(board, subject, grade, element):
         actions = actions.keys()
         headers.append("Week Number")
         for i in actions:
-            headers.append(i + " Open")
+            headers.append(i + " In Progress")
             headers.append(i + " Closed")
         table_data = {}
         for i, j in data.iterrows():
@@ -346,19 +343,19 @@ def outputTable(board, subject, grade, element):
                 table_data[j[1]] = {}
             if j[2] not in table_data[j[1]]:
                 table_data[j[1]][j[2]] = {}
-                table_data[j[1]][j[2]]["Open"] = 0
+                table_data[j[1]][j[2]]["In Progress"] = 0
                 table_data[j[1]][j[2]]["Closed"] = 0
-            if j[3] == "Open":
-                table_data[j[1]][j[2]]["Open"] += 1
+            if j[3] == "In Progress":
+                table_data[j[1]][j[2]]["In Progress"] += 1
             else:
                 table_data[j[1]][j[2]]["Closed"] += 1
         data_to_be_pushed = {}
         for action in actions:
             for week in weeks:
-                if action + " Open" not in data_to_be_pushed:
-                    data_to_be_pushed[action + " Open"] = []
+                if action + " In Progress" not in data_to_be_pushed:
+                    data_to_be_pushed[action + " In Progress"] = []
                     data_to_be_pushed[action + " Closed"] = []
-                data_to_be_pushed[action + " Open"].append(table_data[action][week]["Open"])
+                data_to_be_pushed[action + " In Progress"].append(table_data[action][week]["In Progress"])
                 data_to_be_pushed[action + " Closed"].append(table_data[action][week]["Closed"])
         rows_table.append(list(weeks))
         for i in data_to_be_pushed:
@@ -448,3 +445,4 @@ def render_dashboard():
 
 if __name__ == '__main__':
     app.run_server(port=3000)
+# host='0.0.0.0'

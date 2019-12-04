@@ -8,9 +8,9 @@ print(datetime.strptime(data["Date"][17504], "%d-%m-%Y")-datetime.strptime(data[
 writer = ExcelWriter('Pandas-Example3.xlsx')
 DATA1={"MID":list(mid_status.keys()),"Status":list(mid_status.values())}
 pd1=pd.DataFrame(DATA1)
-print(pd1)
-pd1.to_excel(writer,'Sheet1',index=False)
-writer.save()
+# print(pd1)
+# pd1.to_excel(writer,'Sheet1',index=False)
+# writer.save()
 
 for week in calculated_data[mid][action]:
 	xp+=calculated_data[mid][action][week]
