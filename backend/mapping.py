@@ -14,6 +14,9 @@ class map:
     def __init__(self, data):
         self.data = data
 
+    getsubject=[]
+    getboard=[]
+    getgrade=[]
     def mapping(self):
         activity_split = []
         activity = {}
@@ -28,6 +31,15 @@ class map:
         for i, j in self.data.iterrows():
             year = j[0][0:2]
             state_board = j[0][2:4]
+            if j[0][2:6] not in self.getboard and j[0][2:6]!="":
+                self.getboard.append(j[0][2:6])
+
+            if subject not in self.getsubject and subject!="":
+                self.getsubject.append(subject)
+
+            if grade not in self.getgrade and grade!="":
+                self.getgrade.append(grade)
+
             board = j[0][4:6]
             grade = j[0][6:8]
             subject = j[0][8:11]
@@ -39,6 +51,7 @@ class map:
             MID_Map.append([year, state_board, board, grade, subject, chapter, activity])
         self.data["Mid_Map"] = MID_Map
         self.data["Week"] = weekNumber
+        # print(self.data)
 
     def calculations(self):
         calculated_data = {}
@@ -55,7 +68,10 @@ class map:
                 calculated_data[j[0]][element][action]["XP"] = 0
                 calculated_data[j[0]][element][action]["Status"] = "Closed"
             if j[5]=="In Progress":
-            	calculated_data[j[0]][element][action]["Status"] = "In Progress"
+                calculated_data[j[0]][element][action]["Status"] = "In Progress"
+            if j[5]=="Closed":
+                calculated_data[j[0]][element][action]["Status"] = "Closed"
+
             if j[3] not in calculated_data[j[0]][element][action]["Date"]:
                 calculated_data[j[0]][element][action]["Date"].append(j[3])
             calculated_data[j[0]][element][action]["XP"] += float(j[4])
@@ -74,13 +90,12 @@ class map:
                     pd_ACTION.append(action)
                     pd_TRADE.append(element + " " + action)
                     pd_DATE.append(calculated_data[mid][element][action]["Date"])
-                    pd_DATE
                     pd_XP.append(calculated_data[mid][element][action]["XP"])
                     pd_STATUS.append(calculated_data[mid][element][action]["Status"])
         DATA = {"MID": pd_MID, "Trade": pd_TRADE, "Element": pd_ELEMENT, "Action": pd_ACTION, "XP": pd_XP,
                 "Date": pd_DATE, "Status": pd_STATUS}
         self.modified_data = pd.DataFrame(DATA)
-        # writer = ExcelWriter('Pandas-Example3.xlsx')
+        # writer = ExcelWriter('Pandas-Example2.xlsx')
         # self.modified_data.to_excel(writer,'Sheet1',index=False)
         # writer.save()
         # print(self.modified_data)
@@ -99,7 +114,7 @@ class map:
                 mid_status[mid] = "In Progress"
         grades_status = {}
         for i in mid_status:
-            if i[4:6] == board and i[2:4] == "SB" and i[8:11] == subject and i[8:11] != "XX" and i[8:11] != "" and i[6:8] != "XX" and i[6:8] != "" and len(i) == 13:
+            if i[2:6] == board  and i[8:11] == subject and i[8:11] != "XX" and i[8:11] != "" and i[6:8] != "XX" and i[6:8] != "" and len(i) == 13:
                 if i[6:8] not in grades_status:
                     grades_status[i[6:8]] = {}
                     grades_status[i[6:8]]["Closed"] = 0
@@ -123,7 +138,7 @@ class map:
                 mid = j[0][0:13]
             else:
                 mid = j[0]
-            if mid[4:6] == board and mid[2:4] == "SB" and mid[6:8] == grade and mid[8:11] == subject and len(mid)==13:
+            if mid[2:6] == board and mid[6:8] == grade and mid[8:11] == subject and len(mid)==13:
                 if j[2] not in element_status:
                     element_status[j[2]] = {}
                 if mid not in element_status[j[2]]:
@@ -142,14 +157,13 @@ class map:
                     element_status2[i]["Closed"] += 1
                 elif element_status[i][j]["Status"] == "In Progress":
                     element_status2[i]["In Progress"] += 1
-        print(element_status2)
         return element_status2
 
 
     def grade_element_action_progress(self, board, subject, grade, element):
         action_status = {}
         for i, j in self.modified_data.iterrows():
-            if j[0][4:6] == board and j[0][2:4] == "SB" and j[0][6:8] == grade and j[0][8:11] == subject and j[2] == element and len(j[0]) == 13:
+            if j[0][2:6] == board and j[0][6:8] == grade and j[0][8:11] == subject and j[2] == element and len(j[0]) == 13:
                 if j[3] not in action_status:
                     action_status[j[3]] = {}
                 if j[0] not in action_status[j[3]]:
@@ -157,7 +171,7 @@ class map:
                     action_status[j[3]][j[0]]["Status"] = "Closed"
                 if j[6] == "In Progress":
                     action_status[j[3]][j[0]]["Status"] = "In Progress"
-        print(action_status)
+        # print(action_status)
         action_status2 = {}
         for i in action_status:
             for j in action_status[i]:
@@ -169,7 +183,6 @@ class map:
                     action_status2[i]["Closed"] += 1
                 if action_status[i][j]["Status"] == "In Progress":
                     action_status2[i]["In Progress"] += 1
-        print(action_status2)
         return [action_status, action_status2]
 
     def action_progress(self, board, subject, grade, element):
@@ -180,68 +193,50 @@ class map:
         max_week = -4
         calculated_data = {}
         for i, j in self.data.iterrows():
-            if j[0][4:6] == board and j[0][2:4] == "SB" and j[0][8:11] == subject and j[0][6:8] == grade and element == element and len(j[0]) == 13:
+            action=j[6][6][3]
+            week=j[7]
+            if j[0][2:6] == board and j[0][8:11] == subject and j[0][6:8] == grade and j[6][6][2] == element:
                 if j[0] not in calculated_data:
                     calculated_data[j[0]] = {}
                 if action not in calculated_data[j[0]]:
                     calculated_data[j[0]][action] = {}
-                if min_week > j[6]:
-                    min_week = j[6]
-                if max_week < j[6]:
-                    max_week = j[6]
-                if j[6] not in calculated_data[j[0]][action]:
-                    calculated_data[j[0]][action][j[6]] = 0
-                calculated_data[j[0]][action][j[6]] += j[4]
+                if min_week > j[7]:
+                    min_week = j[7]
+                if max_week < j[7]:
+                    max_week = j[7]
+                if week not in calculated_data[j[0]][action]:
+                    calculated_data[j[0]][action][week] = "Closed"
+                if j[5] =="In Progress":
+                    calculated_data[j[0]][action][week] = "In Progress"
+                if j[5] =="Closed":
+                    calculated_data[j[0]][action][week] = "Closed"
         weeks = []
-        if present_week - max_week >= 3:
-            for i in range(min_week, max_week + 4):
-                weeks.append(i)
-        else:
-            for i in range(min_week, max_week + 1):
-                weeks.append(i)
+        for i in range(min_week, max_week +1):
+            weeks.append(i)
         pd_MID = []
         pd_ACTION = []
         pd_WEEK = []
         pd_STATUS = []
-
         previous_week = 0
+        status=""
         for mid in calculated_data:
             for action in calculated_data[mid]:
-                xp = 0
                 for week in weeks:
                     if week in calculated_data[mid][action]:
                         previous_week = week
-                        xp += calculated_data[mid][action][week]
-                        calculated_data[mid][action][week] = xp
-                        if len(mid) == 13:
-                            mid_key = mid[0:11]
-                        elif len(mid) == 11:
-                            mid_key = mid[0:8]
-                        elif len(mid) == 8:
-                            mid_key = mid[0:6]
-                        else:
-                            mid_key = mid
-
-                        if mid_key in self.trades[element + " " + action]:
-                            if calculated_data[mid][action][week] > self.trades[element + " " + action][mid_key][
-                                "Threshold"]:
-                                pd_MID.append(mid)
-                                pd_ACTION.append(action)
-                                pd_WEEK.append(week)
-                                pd_STATUS.append("Closed")
-                            else:
-                                pd_MID.append(mid)
-                                pd_ACTION.append(action)
-                                pd_WEEK.append(week)
-                                pd_STATUS.append("In Progress")
+                        status=calculated_data[mid][action][week]
+                        if status=="Closed":
+                            pd_MID.append(mid)
+                            pd_ACTION.append(action)
+                            pd_WEEK.append(week)
+                            pd_STATUS.append("Closed")
                         else:
                             pd_MID.append(mid)
                             pd_ACTION.append(action)
                             pd_WEEK.append(week)
                             pd_STATUS.append("In Progress")
                     else:
-                        calculated_data[mid][action][week] = 0
-                        if week - previous_week >= 2:
+                        if status=="Closed":
                             pd_MID.append(mid)
                             pd_ACTION.append(action)
                             pd_WEEK.append(week)
@@ -255,24 +250,23 @@ class map:
         pd_data = pd.DataFrame(DATA)
         return pd_data
 
+
+
     def getBoards(self):
-        boards = ["MH", "AP"]
+        boards = sorted(self.getboard)
         return boards
 
     def getSubjects(self):
-        subjects = ["MAT", "PHY", "CHE", "BIO"]
+        subjects = self.getsubject
         return subjects
 
     def getGrades(self):
-        grades = ["06", "07", "08", "09", "10"]
+        grades = self.getgrade
         return grades
 
     def getElements(self):
-        elements = ["Team Activity", "RTE", "Assessments", "Practice", "Learn Journeys", "Interactive Questions",
-                    "Mapping", "Product", "Knowledge Graphs", "Videos", "Questions", "Raw Questions", "Management",
-                    "Scripts", "Pre-Production", "Images", "S2", "APTS", "Artworks", "QR Codes", "Chapter", "Worksheet",
-                    "Quick Notes", "Chapter Structure"]
-        return elements
+        elements = Counter(self.modified_data["Element"])
+        return elements.keys()
 
     def getMID(self):
         mid = []
