@@ -47,8 +47,22 @@ class main:
 	# ob.action_prog_2()
 	query="select * from tb_data where board= %s and subject=%s and grade=%s and element=%s"
 	mycursor.execute(query,[board,subject,grade,element])
+	weeks={}
 	myresult=mycursor.fetchall()
 	for row in myresult:
-		print(row[0])
+		mid=row[0]
+		action=row[5]
+		element=row[4]
+		if mid not in weeks:
+			weeks[mid]={}
+		if action+" In Progress" not in weeks[mid]:
+			weeks[mid][action+" In Progress"]=0
+		if action+" Closed" not in weeks[mid]:
+			weeks[mid][action+" Closed"]=0
+		if row[7]=="Closed":
+			weeks[mid][action+" Closed"]+=1
+		if row[7] =="In Progress":
+			weeks[mid][action+" In Progress"]+=1
+	print(weeks)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
