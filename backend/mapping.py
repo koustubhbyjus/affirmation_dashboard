@@ -22,6 +22,8 @@ class map:
     mycursor.execute(
         "CREATE TABLE if not EXISTS TB_element_grades_progress (board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255),element VARCHAR(255), closed VARCHAR(255), open VARCHAR(255))")
     mycursor.execute(
+        "CREATE TABLE if not EXISTS TB_action_grades_progress (board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255),action VARCHAR(255), closed VARCHAR(255), open VARCHAR(255))")
+    mycursor.execute(
         "CREATE TABLE if not EXISTS TB_action_progress (board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255),element VARCHAR(255), action VARCHAR(255), closed VARCHAR(255), open VARCHAR(255))")
     mycursor.execute(
         "CREATE TABLE if not EXISTS TB_action_progress_chapter (board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255),element VARCHAR(255), action VARCHAR(255),chapter VARCHAR(255), status VARCHAR(255))")
@@ -190,6 +192,48 @@ class map:
         self.mydb.commit()
         # self.mycursor.close()
         print("Done")
+    def action_grades_progress(self):
+        self.mycursor.execute("DELETE from TB_action_grades_progress")
+        action_status = {}
+        action_status2 = {}
+        for i, j in self.modified_data.iterrows():
+            if len(j[0]) == 23:
+                mid = j[0][0:13]
+            else:
+                mid = j[0]
+            if len(mid) == 13:
+                key = mid[2:6] + "" + mid[8:11] + "" + mid[6:8]
+                chapter = mid[11:]
+                action=j[3]
+                if key not in action_status:
+                    action_status[key] = {}
+                    action_status2[key] = {}
+                if action not in action_status[key]:
+                    action_status[key][action] = {}
+                    action_status2[key][action] = {}
+                    action_status2[key][action]["Closed"] = 0
+                    action_status2[key][action]["In Progress"] = 0
+                if chapter not in action_status[key][action]:
+                    action_status[key][action][chapter] = {}
+                    action_status[key][action][chapter] = "Closed"
+                if j[6] == "In Progress":
+                    action_status[key][action][chapter] = "In Progress"
+        for key in action_status:
+            for action in action_status[key]:
+                for chapter in action_status[key][action]:
+                    if action_status[key][action][chapter] == "Closed":
+                        action_status2[key][action]["Closed"] += 1
+                    elif action_status[key][action][chapter] == "In Progress":
+                        action_status2[key][action]["In Progress"] += 1
+        for key in action_status2:
+            for action in action_status2[key]:
+                self.mycursor.execute(
+                    'INSERT INTO TB_action_grades_progress(board, subject, grade ,action, closed,open )VALUES(%s,%s,%s,%s,%s,%s)',
+                    [key[0:4], key[4:7], key[7:], action, action_status2[key][action]["Closed"],
+                     action_status2[key][action]["In Progress"]])
+        self.mydb.commit()
+        # self.mycursor.close()
+        print("Done")
 
     def grade_element_action_progress(self):
         self.mycursor.execute("DELETE from TB_action_progress")
@@ -242,69 +286,7 @@ class map:
         # self.mycursor.close()
         print("Done")
 
-    def action_progress(self, board, subject, grade, element):
-        min_week = 12456
-        max_week = -4
-        calculated_data = {}
-        for i, j in self.data.iterrows():
-        	action=j[6][6][3]
-        	week=j[7]
-        	if j[0][2:6] == board and j[0][8:11] == subject and j[0][6:8] == grade and j[6][6][2] == element:
-        		if j[0] not in calculated_data:
-        			calculated_data[j[0]] = {}
-        		if action not in calculated_data[j[0]]:
-        			calculated_data[j[0]][action] = {}
-        		if min_week > j[7]:
-        			min_week = j[7]
-        		if max_week < j[7]:
-        			max_week = j[7]
-        		if week not in calculated_data[j[0]][action]:
-        			calculated_data[j[0]][action][week] = "Closed"
-        		if j[5] =="In Progress":
-        			calculated_data[j[0]][action][week] = "In Progress"
-        		if j[5] =="Closed":
-        			calculated_data[j[0]][action][week] = "Closed"
-        weeks = []
-        for i in range(min_week, max_week +1):
-            weeks.append(i)
-        pd_MID = []
-        pd_ACTION = []
-        pd_WEEK = []
-        pd_STATUS = []
-        previous_week = 0
-        status=""
-        for mid in calculated_data:
-        	for action in calculated_data[mid]:
-        		for week in weeks:
-        			if week in calculated_data[mid][action]:
-        				previous_week = week
-        				status=calculated_data[mid][action][week]
-        				if status=="Closed":
-        					pd_MID.append(mid)
-        					pd_ACTION.append(action)
-        					pd_WEEK.append(week)
-        					pd_STATUS.append("Closed")
-        				else:
-        					pd_MID.append(mid)
-        					pd_ACTION.append(action)
-        					pd_WEEK.append(week)
-        					pd_STATUS.append("In Progress")
-        			else:
-        				if status=="Closed":
-        					pd_MID.append(mid)
-        					pd_ACTION.append(action)
-        					pd_WEEK.append(week)
-        					pd_STATUS.append("Closed")
-        				else:
-        					pd_MID.append(mid)
-        					pd_ACTION.append(action)
-        					pd_WEEK.append(week)
-        					pd_STATUS.append("In Progress")
-        DATA = {"MID": pd_MID, "Action": pd_ACTION, "Week": pd_WEEK, "Status": pd_STATUS}
-        pd_data = pd.DataFrame(DATA)
-        return pd_data
-
-    def action_prog_2(self):
+    def action_progress(self):
         self.mycursor.execute("DELETE from tb_data")
         present_date = self.data["Date"][len(self.data["Date"]) - 1]
         present_date = datetime.strptime(present_date, "%d-%m-%Y")
@@ -412,6 +394,10 @@ class map:
     def getElements(self):
         elements = Counter(self.modified_data["Element"])
         return elements.keys()
+
+    def getActions(self):
+        action = Counter(self.modified_data["Action"])
+        return action.keys()
 
     def getMID(self):
         mid = []

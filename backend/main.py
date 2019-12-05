@@ -35,29 +35,31 @@ class main:
 	ob=mapping.map(data)
 	ob.mapping()
 	ob.calculations()
+	ob.gradeswise_progress()
+	ob.element_grades_progress()
+	ob.action_grades_progress()
+	ob.grade_element_action_progress()
+	ob.action_progress()
 	# print(ob.getGrades())
 	# # print(data)
-	board="SBAP"
-	subject="MAT"
-	grade="10"
-	element="Assessments"
-	query="select mid,action,week,status from tb_data where board=%s and subject=%s and grade=%s and element=%s"
-	mycursor.execute(query,[board,subject,grade,element])
-	myresult=mycursor.fetchall()
-	pd_mid=[]
-	pd_action=[]
-	pd_week=[]
-	pd_status=[]
-	for row in myresult:
-		pd_mid.append(row[0])
-		pd_action.append(row[1])
-		pd_week.append(row[2])
-		pd_status.append(row[3])
-	data={"MID":pd_mid,"Action":pd_action,"Week":pd_week,"Status":pd_status}
-	pd_data=pd.DataFrame(data)
-	print(pd_data)
-	# ob.gradeswise_progress()
-	# ob.element_grades_progress()
-	# ob.grade_element_action_progress()
-	# ob.action_prog_2()
+	# board="SBAP"
+	# subject="MAT"
+	# grade="10"
+	# element="Assessments"
+	# query="select mid,action,week,status from tb_data where board=%s and subject=%s and grade=%s and element=%s"
+	# mycursor.execute(query,[board,subject,grade,element])
+	# myresult=mycursor.fetchall()
+	# pd_mid=[]
+	# pd_action=[]
+	# pd_week=[]
+	# pd_status=[]
+	# for row in myresult:
+	# 	pd_mid.append(row[0])
+	# 	pd_action.append(row[1])
+	# 	pd_week.append(row[2])
+	# 	pd_status.append(row[3])
+	# data={"MID":pd_mid,"Action":pd_action,"Week":pd_week,"Status":pd_status}
+	# pd_data=pd.DataFrame(data)
+	# print(pd_data)
+
 	print("--- %s seconds ---" % (time.time() - start_time))
