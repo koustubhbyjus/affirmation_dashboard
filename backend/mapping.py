@@ -26,8 +26,8 @@ class map:
     mycursor.execute(
         "CREATE TABLE if not EXISTS TB_action_progress_chapter (board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255),element VARCHAR(255), action VARCHAR(255),chapter VARCHAR(255), status VARCHAR(255))")
 
-    mycursor.execute("CREATE TABLE if not EXISTS TB_data(week VARCHAR(255), board VARCHAR(255), subject VARCHAR(255), Grade VARCHAR(255), Element VARCHAR(255), Action VARCHAR(255), MID VARCHAR(255), Status VARCHAR(255))")
-    
+    mycursor.execute("CREATE TABLE if not EXISTS TB_data(board VARCHAR(255), subject VARCHAR(255), grade VARCHAR(255), element VARCHAR(255), mid VARCHAR(255),action VARCHAR(255),week VARCHAR(255), status VARCHAR(255))")
+
     def __init__(self, data):
         self.data = data
 
@@ -305,38 +305,97 @@ class map:
         return pd_data
 
     def action_prog_2(self):
-        self.mycursor.execute("DELETE from TB_data")
-        mapping={}
-        for i,j in self.data.iterrows():
-            week = j[3]
-            week = datetime.strptime(week, "%d-%m-%Y")
-            week=week.isocalendar()[1]
-            element=j[6][6][2]
-            action = j[6][6][3]
-            mid=j[0]
-            if week not in mapping:
-                mapping[week]={}
-            if mid not in mapping[week]:
-                mapping[week][mid]={}
-            if element not in mapping[week][mid]:
-                mapping[week][mid][element]={}
-            if action not in mapping[week][mid][element]:
-                mapping[week][mid][element][action]=""
-            if j[5]=="Closed":
-                mapping[week][mid][element][action]="Closed"
-            else:
-                mapping[week][mid][element][action]="In Progress"
-
-        for week in mapping:
-            for mid in mapping[week]:
-                for element in mapping[week][mid]:
-                    for action in mapping[week][mid][element]:
-                        self.mycursor.execute(
-                "INSERT into TB_data(week,board,subject,grade,element,Action,MID,Status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
-                [week, mid[2:6], mid[8:11],mid[6:8],element,action,mid, mapping[week][mid][element][action]])
+        self.mycursor.execute("DELETE from tb_data")
+        present_date = self.data["Date"][len(self.data["Date"]) - 1]
+        present_date = datetime.strptime(present_date, "%d-%m-%Y")
+        present_week = present_date.isocalendar()[1]
+        min_week = 12456
+        max_week = -4
+        calculated_data = {}
+        for i, j in self.data.iterrows():
+            action=j[6][6][3]
+            week=j[7]
+            key=j[0][2:6]+""+j[0][8:11]+""+j[0][6:8]+""+j[6][6][2]
+            if key not in calculated_data:
+                calculated_data[key]={}
+            if j[0] not in calculated_data[key]:
+                calculated_data[key][j[0]] = {}
+            if action not in calculated_data[key][j[0]]:
+                calculated_data[key][j[0]][action] = {}
+            if min_week > j[7]:
+                min_week = j[7]
+            if max_week < j[7]:
+                max_week = j[7]
+            if week not in calculated_data[key][j[0]][action]:
+                calculated_data[key][j[0]][action][week] = "Closed"
+            if j[5] =="In Progress":
+                calculated_data[key][j[0]][action][week] = "In Progress"
+            if j[5] =="Closed":
+                calculated_data[key][j[0]][action][week] = "Closed"
+        weeks = []
+        for i in range(min_week, max_week +1):
+            weeks.append(i)
+        # print(calculated_data)
+        pd_board=[]
+        pd_subject=[]
+        pd_grade=[]
+        pd_elemet=[]
+        pd_mid = []
+        pd_action = []
+        pd_week = []
+        pd_status = []
+        previous_week = 0
+        status=""
+        for key in calculated_data:
+            for mid in calculated_data[key]:
+                for action in calculated_data[key][mid]:
+                    for week in weeks:
+                        if week in calculated_data[key][mid][action]:
+                            previous_week = week
+                            status=calculated_data[key][mid][action][week]
+                            if status=="Closed":
+                                pd_board.append(key[0:4])
+                                pd_subject.append(key[4:7])
+                                pd_grade.append(key[7:9])
+                                pd_elemet.append(key[9:])
+                                pd_mid.append(mid)
+                                pd_action.append(action)
+                                pd_week.append(week)
+                                pd_status.append("Closed")
+                            else:
+                                pd_board.append(key[0:4])
+                                pd_subject.append(key[4:7])
+                                pd_grade.append(key[7:9])
+                                pd_elemet.append(key[9:])
+                                pd_mid.append(mid)
+                                pd_action.append(action)
+                                pd_week.append(week)
+                                pd_status.append("In Progress")
+                        else:
+                            if status=="Closed":
+                                pd_board.append(key[0:4])
+                                pd_subject.append(key[4:7])
+                                pd_grade.append(key[7:9])
+                                pd_elemet.append(key[9:])
+                                pd_mid.append(mid)
+                                pd_action.append(action)
+                                pd_week.append(week)
+                                pd_status.append("Closed")
+                            else:
+                                pd_board.append(key[0:4])
+                                pd_subject.append(key[4:7])
+                                pd_grade.append(key[7:9])
+                                pd_elemet.append(key[9:])
+                                pd_mid.append(mid)
+                                pd_action.append(action)
+                                pd_week.append(week)
+                                pd_status.append("In Progress")
+        DATA = {"Board":pd_board,"Subject":pd_subject,"Grade":pd_grade,"Element":pd_elemet,"MID": pd_mid, "Action": pd_action, "Week": pd_week, "Status": pd_status}
+        pd_data = pd.DataFrame(DATA)
+        for i,j in pd_data.iterrows():
+            self.mycursor.execute("Insert into tb_data(board,subject,grade,element,mid,action,week,status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",[j[0],j[1],j[2],j[3],j[4],j[5],j[6],j[7]])
         self.mydb.commit()
-        # self.mycursor.close()
-        print("Done")
+        return pd_data
 
     def getBoards(self):
         boards = (self.getboard)

@@ -7,6 +7,7 @@ from flask import Flask
 from flask import redirect
 import plotly.graph_objects as go
 from collections import Counter
+import pymysql
 
 external_stylesheets = ["https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css",
                         "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js",
@@ -14,8 +15,32 @@ external_stylesheets = ["https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/boo
 server = Flask(__name__)
 app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets, url_base_pathname='/dashboard/')
 
-loc="data/sample_data.csv"
-data=pd.read_csv(loc)
+mydb = pymysql.connect(
+    host="localhost",
+    user="root",
+    passwd="koustubh28",
+    database="db_affirmation"
+)
+mycursor = mydb.cursor()
+query = 'select MID,Activity_Name,User,date_format(filled_date,"%d-%m-%Y"),Filled_Xp,Status from tb_affirmation_data Order by Filled_Date ASC'
+mycursor.execute(query)
+myresult = mycursor.fetchall()
+MID = []
+Activity_Name = []
+User = []
+Filled_Date = []
+Filled_Xp = []
+Status = []
+for x in myresult:
+    MID.append(x[0])
+    Activity_Name.append(x[1])
+    User.append(x[2])
+    Filled_Date.append(x[3])
+    Filled_Xp.append(x[4])
+    Status.append(x[5])
+DATA = {"MID": MID, "Activity Name": Activity_Name, "User": User, "Date": Filled_Date, "Filled XP": Filled_Xp,
+        "Status": Status}
+data = pd.DataFrame(DATA)
 ob = mapping.map(data)
 ob.mapping()
 ob.calculations()
@@ -24,6 +49,8 @@ subjects = ob.getSubjects()
 grades = ob.getGrades()
 elements = ob.getElements()
 mids = ob.getMID()
+mydb.commit()
+mycursor.close()
 
 app.layout = html.Div(children=[
     html.Div(
@@ -90,25 +117,26 @@ app.layout = html.Div(children=[
                 id='1',
 
             ),
-            html.I("This table gives status(closed/in progress) of each grade by choosing board and subject. The objective is to find lagging grades.")          
+            html.I(
+                "This table gives status(closed/in progress) of each grade by choosing board and subject. The objective is to find lagging grades.")
         ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}),
 
         html.Div([
             dcc.Graph(
                 id='2'
             ),
-            html.I("This table gives the status of all the elements of the selected grade. The objective is to find the lagging element")
+            html.I(
+                "This table gives the status of all the elements of the selected grade. The objective is to find the lagging element")
         ], style={'width': '49%', 'float': 'right', 'display': 'inline-block', 'padding': '0 20'})
     ], className='well'),
-
-   
 
     html.Div([
         html.Div([
             dcc.Graph(
                 id='3'
             ),
-            html.I("This table shows the status of all the actions for the selected element. The objective is to find lagging actions.")
+            html.I(
+                "This table shows the status of all the actions for the selected element. The objective is to find lagging actions.")
         ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'}),
     ], className='well'),
 
@@ -117,17 +145,18 @@ app.layout = html.Div(children=[
             dcc.Graph(
                 id='4'
             ),
-            html.I("This table shows weeks' progress in actions. This was done so that we can view how many chapters were closed in a particular week.")
-        ], style={'width': '98%','display': 'inline-block', 'padding': '0 20'})
+            html.I(
+                "This table shows weeks' progress in actions. This was done so that we can view how many chapters were closed in a particular week.")
+        ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'})
     ], className='well'),
-
 
     html.Div([
         html.Div([
             dcc.Graph(
                 id='5'
             ),
-            html.I("This table shows truncated MIDs and in how many actions it's been closed/in progress. If you see chapter as "+"01"+" , it means 19SBAP10PHY"+"01"+"This view represent state of each chapter")
+            html.I(
+                "This table shows truncated MIDs and in how many actions it's been closed/in progress. If you see chapter as " + "01" + " , it means 19SBAP10PHY" + "01" + "This view represent state of each chapter")
         ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'}),
 
     ], className='well'),
@@ -137,8 +166,9 @@ app.layout = html.Div(children=[
             dcc.Graph(
                 id='6'
             ),
-            html.I("This table shows weeks' progress of actions for a particular mid. For this, you have to select MID and it should match all the options you have selected so far. This was done so that we can view the progress of a particular MID")
-        ], style={'width': '98%','display': 'inline-block', 'padding': '0 20'})
+            html.I(
+                "This table shows weeks' progress of actions for a particular mid. For this, you have to select MID and it should match all the options you have selected so far. This was done so that we can view the progress of a particular MID")
+        ], style={'width': '98%', 'display': 'inline-block', 'padding': '0 20'})
     ], className='well'),
 
 ], className='well')
@@ -150,20 +180,32 @@ app.layout = html.Div(children=[
      ])
 def outputTable(board, subject):
     print("Started 1")
-    prog = ob.gradeswise_progress(board, subject)
+    mydb = pymysql.connect(
+        host="localhost",
+        user="root",
+        passwd="koustubh28",
+        database="db_affirmation"
+    )
+    mycursor = mydb.cursor()
+    print("Started 1")
     grades = []
     closed = []
     in_progress = []
-    if (board != "null" or subject != "null"):
-        for i in prog:
-            grades.append(i)
-            closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['In Progress'])
-    layout = go.Layout(title='Gradewise  ' + board + ' ' + subject + ' Project Progress',)
+    if board != "null" and subject != "null":
+        query = "SELECT * FROM tb_gradewise_progress where board= %s and subject=%s"
+        mycursor.execute(query, (board, subject))
+        myresult = mycursor.fetchall()
+        for row in myresult:
+            grades.append(row[2])
+            closed.append(row[3])
+            in_progress.append(row[4])
+    layout = go.Layout(title='Gradewise  ' + board + ' ' + subject + ' Project Progress', )
     print("Ended 1")
+    mydb.commit()
+    mycursor.close()
     return {
         'data': [go.Table(
-            columnwidth = [80,80],
+            columnwidth=[80, 80],
             header=dict(values=['Grade', 'Closed', 'In Progress'],
                         line_color='darkslategray',
                         fill_color='paleturquoise',
@@ -185,21 +227,32 @@ def outputTable(board, subject):
      ])
 def outputTable(board, subject, grade):
     print("Started 2")
-    prog = ob.element_grades_progress(board, subject, grade)
+    mydb = pymysql.connect(
+        host="localhost",
+        user="root",
+        passwd="koustubh28",
+        database="db_affirmation"
+    )
+    mycursor = mydb.cursor()
     element = []
     closed = []
     in_progress = []
-    if (board != "null" or subject != "null" or grade != "null"):
-        for i in prog:
-            element.append(i)
-            closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['In Progress'])
+    if (board != "null" and subject != "null" and grade != "null"):
+        query = "SELECT * FROM tb_element_grades_progress where board= %s and subject=%s and grade=%s"
+        mycursor.execute(query, (board, subject, grade))
+        myresult = mycursor.fetchall()
+        for row in myresult:
+            element.append(row[3])
+            closed.append(row[4])
+            in_progress.append(row[5])
     layout = go.Layout(title='Elements  of grade ' + grade + ' Progress')
     print("Ended 2")
+    mydb.commit()
+    mycursor.close()
 
     return {
         'data': [go.Table(
-            columnwidth = [80,80],
+            columnwidth=[80, 80],
             header=dict(values=['Element', 'Closed', 'In Progress'],
                         line_color='darkslategray',
                         fill_color='paleturquoise',
@@ -223,21 +276,32 @@ def outputTable(board, subject, grade):
      ])
 def outputTable(board, subject, grade, element):
     print("Started 3 ")
-    prog = ob.grade_element_action_progress(board, subject, grade, element)[1]
+    mydb = pymysql.connect(
+        host="localhost",
+        user="root",
+        passwd="koustubh28",
+        database="db_affirmation"
+    )
+    mycursor = mydb.cursor()
     action = []
     closed = []
     in_progress = []
-    if (board != "null" or subject != "null" or grade != "null"):
-        for i in prog:
-            action.append(i)
-            closed.append(prog[i]['Closed'])
-            in_progress.append(prog[i]['In Progress'])
+    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
+        query = "SELECT * FROM tb_action_progress where board= %s and subject=%s and grade=%s and element=%s"
+        mycursor.execute(query, (board, subject, grade, element))
+        myresult = mycursor.fetchall()
+        for row in myresult:
+            action.append(row[4])
+            closed.append(row[5])
+            in_progress.append(row[6])
 
     layout = go.Layout(title='Actions  of ' + element + ' of grade ' + grade + ' Progress')
     print("ended 3")
+    mydb.commit()
+    mycursor.close()
     return {
         'data': [go.Table(
-            columnwidth = [80,80],
+            columnwidth=[80, 80],
             header=dict(values=['Element', 'Closed', 'In Progress'],
                         line_color='darkslategray',
                         fill_color='paleturquoise'),
@@ -259,48 +323,56 @@ def outputTable(board, subject, grade, element):
      ])
 def outputTable(board, subject, grade, element):
     print("started 5 ")
-    prog = ob.grade_element_action_progress(board, subject, grade, element)[0]
+    mydb = pymysql.connect(
+        host="localhost",
+        user="root",
+        passwd="koustubh28",
+        database="db_affirmation"
+    )
+    mycursor = mydb.cursor()
     headers = []
-    headers.append("Chapter Name")
-    mids = []
-    chapters = []
-    status = {}
-    if (board != "null" or subject != "null" or grade != "null"):
-        for i in prog:
-            headers.append(i)
-            for j in prog[i]:
-                if j not in mids:
-                    if len(j) == 13:
-                        chapters.append(j[len(j) - 2:len(j)])
-                    elif len(j) == 11:
-                        chapters.append(j[len(j) - 3:len(j)])
-                    elif len(j) == 23:
-                        chapters.append(j[len(j) - 12:len(j)])
-                    else:
-                        chapters.append(j)
-
-                    mids.append(j)
-        mids = sorted(mids)
-        chapters = sorted(chapters)
-        for i in prog:
-            if i not in status:
-                status[i] = []
-            for j in mids:
-                try:
-                    status[i].append(prog[i][j]["Status"])
-                except KeyError:
-                    status[i].append("null")
     table_values = []
+    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
+        query = "SELECT * FROM tb_action_progress_chapter where board in (%s) and subject in (%s) and grade in (%s) and element in (%s)"
+        mycursor.execute(query, (board, subject, grade, element))
+        myresult = mycursor.fetchall()
+        headers.append("Chapter Name")
+        chapters_headers = []
+        action_headers = []
+        status = []
+        for row in myresult:
+            if row[4] not in action_headers:
+                action_headers.append(row[4])
+            if row[5] not in chapters_headers:
+                chapters_headers.append(row[5])
 
-    table_values.append(chapters)
-    for i in status:
-        table_values.append(status[i])
+        action_status = {}
+        action_headers = sorted(action_headers)
+        for i in action_headers:
+            headers.append(i)
+        chapters_headers = sorted(chapters_headers)
+        for i in action_headers:
+            for j in chapters_headers:
+                query = 'SELECT * FROM tb_action_progress_chapter where board in (%s) and subject=%s and grade=%s and element=%s and action=%s and chapter=%s '
+                mycursor.execute(query, (board, subject, grade, element, i, j))
+                myresult = mycursor.fetchall()
+                if i not in action_status:
+                    action_status[i] = []
+                if len(myresult) == 0:
+                    action_status[i].append('null')
+                for row in myresult:
+                    action_status[i].append(row[6])
 
+        table_values.append(chapters_headers)
+        for i in action_status:
+            table_values.append(action_status[i])
     layout = go.Layout(title='Chapters of ' + element + ' vs Actions ')
     print("Ended 5")
+    mydb.commit()
+    mycursor.close()
     return {
         'data': [go.Table(
-            columnwidth = [80,80],
+            columnwidth=[80, 80],
             header=dict(values=headers,
                         line_color='darkslategray',
                         fill_color='paleturquoise',
@@ -324,11 +396,31 @@ def outputTable(board, subject, grade, element):
      ])
 def outputTable(board, subject, grade, element):
     print("Started 4 ")
-    data = ob.action_progress(board, subject, grade, element)
     headers = []
     weeks = []
     rows_table = []
-    if (board != "null" or subject != "null" or grade != "null" or element != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
+        mydb = pymysql.connect(
+            host="localhost",
+            user="root",
+            passwd="koustubh28",
+            database="db_affirmation"
+        )
+        mycursor = mydb.cursor()
+        query = "select mid,action,week,status from tb_data where board=%s and subject=%s and grade=%s and element=%s"
+        mycursor.execute(query, [board, subject, grade, element])
+        myresult = mycursor.fetchall()
+        pd_mid = []
+        pd_action = []
+        pd_week = []
+        pd_status = []
+        for row in myresult:
+            pd_mid.append(row[0])
+            pd_action.append(row[1])
+            pd_week.append(row[2])
+            pd_status.append(row[3])
+        pd_data = {"MID": pd_mid, "Action": pd_action, "Week": pd_week, "Status": pd_status}
+        data = pd.DataFrame(pd_data)
         weeks = Counter(data["Week"])
         weeks = weeks.keys()
         actions = Counter(data["Action"])
@@ -388,12 +480,32 @@ def outputTable(board, subject, grade, element):
      ])
 def outputTable(board, subject, grade, element, mid):
     print("started 6")
-    data = ob.action_progress(board, subject, grade, element)
     header = []
     table_data = {}
     headers = []
     data_pushed = []
     if (board != "null" or subject != "null" or grade != "null" or element != "null" or mid != "null"):
+        mydb = pymysql.connect(
+            host="localhost",
+            user="root",
+            passwd="koustubh28",
+            database="db_affirmation"
+        )
+        mycursor = mydb.cursor()
+        query = "select mid,action,week,status from tb_data where board=%s and subject=%s and grade=%s and element=%s"
+        mycursor.execute(query, [board, subject, grade, element])
+        myresult = mycursor.fetchall()
+        pd_mid = []
+        pd_action = []
+        pd_week = []
+        pd_status = []
+        for row in myresult:
+            pd_mid.append(row[0])
+            pd_action.append(row[1])
+            pd_week.append(row[2])
+            pd_status.append(row[3])
+        pd_data = {"MID": pd_mid, "Action": pd_action, "Week": pd_week, "Status": pd_status}
+        data = pd.DataFrame(pd_data)
         headers.append("Actions")
         weeks = Counter(data["Week"])
         weeks = list(weeks.keys())
@@ -424,7 +536,7 @@ def outputTable(board, subject, grade, element, mid):
 
     return {
         'data': [go.Table(
-            columnwidth = [80,80],
+            columnwidth=[80, 80],
             header=dict(values=headers,
                         line_color='darkslategray',
                         fill_color='paleturquoise',
