@@ -377,7 +377,7 @@ class map:
         for i,j in pd_data.iterrows():
             self.mycursor.execute("Insert into tb_data(board,subject,grade,element,mid,action,week,status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",[j[0],j[1],j[2],j[3],j[4],j[5],j[6],j[7]])
         self.mydb.commit()
-        return pd_data
+        print("Done")
 
     def getBoards(self):
         boards = (self.getboard)
