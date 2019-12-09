@@ -180,6 +180,16 @@ app.layout = html.Div(children=[
     ], className='well'),
 
     html.Div([
+        html.Label("Select Actions"),
+        dcc.Dropdown(
+            id='action_select_id',
+            options=[{'label': i, 'value': i} for i in actions],
+            value='null',
+            multi=True,
+            placeholder="Select Actions"
+        ),
+    ], style={'width': '19%', 'float': 'center', 'display': 'inline-block', 'padding-left': '70px'}),
+    html.Div([
         html.Div([
             dcc.Graph(
                 id='weekswise_action_of_element'
@@ -231,8 +241,8 @@ def outputTable(board, subject):
     print("Started gradewise_table")
     grades = {}
     board = tuple(board)
-    subject=tuple(subject)
-    if board != "null" and subject != "null":
+    subject = tuple(subject)
+    if board != "null" and board != "None" and subject != "null" and subject != "None":
         query = "SELECT * FROM tb_gradewise_progress where board in %s and subject in %s"
         print(query)
         mycursor.execute(query, (board, subject))
@@ -268,6 +278,8 @@ def outputTable(board, subject):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('grade_elements', 'figure'),
     [dash.dependencies.Input('boardId', 'value'), dash.dependencies.Input('subjectId', 'value'),
@@ -292,11 +304,11 @@ def outputTable(board, subject, grade):
         myresult = mycursor.fetchall()
         for row in myresult:
             if row[3] not in element:
-                element[row[3]]={}
-                element[row[3]]["Closed"]=0
-                element[row[3]]["In Progress"]=0
-            element[row[3]]["Closed"]+=int(row[4])
-            element[row[3]]["In Progress"]+=int(row[5])
+                element[row[3]] = {}
+                element[row[3]]["Closed"] = 0
+                element[row[3]]["In Progress"] = 0
+            element[row[3]]["Closed"] += int(row[4])
+            element[row[3]]["In Progress"] += int(row[5])
         for i in element:
             c1.append(i)
             closed.append(element[i]["Closed"])
@@ -321,6 +333,8 @@ def outputTable(board, subject, grade):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('grades_actions', 'figure'),
     [dash.dependencies.Input('boardId', 'value'), dash.dependencies.Input('subjectId', 'value'),
@@ -336,7 +350,7 @@ def outputTable(board, subject, grade):
     )
     mycursor = mydb.cursor()
     action = {}
-    c1=[]
+    c1 = []
     closed = []
     in_progress = []
     if (board != "null" and subject != "null" and grade != "null"):
@@ -345,11 +359,11 @@ def outputTable(board, subject, grade):
         myresult = mycursor.fetchall()
         for row in myresult:
             if row[3] not in action:
-                action[row[3]]={}
-                action[row[3]]["Closed"]=0
-                action[row[3]]["In Progress"]=0
-            action[row[3]]["Closed"]+=int(row[4])
-            action[row[3]]["In Progress"]+=int(row[5])
+                action[row[3]] = {}
+                action[row[3]]["Closed"] = 0
+                action[row[3]]["In Progress"] = 0
+            action[row[3]]["Closed"] += int(row[4])
+            action[row[3]]["In Progress"] += int(row[5])
         for i in action:
             c1.append(i)
             closed.append(action[i]["Closed"])
@@ -374,6 +388,8 @@ def outputTable(board, subject, grade):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('actions_of_element', 'figure'),
     [dash.dependencies.Input('boardId', 'value'),
@@ -391,7 +407,7 @@ def outputTable(board, subject, grade, element):
     )
     mycursor = mydb.cursor()
     action = {}
-    c1=[]
+    c1 = []
     closed = []
     in_progress = []
     if (board != "null" and subject != "null" and grade != "null" and element != "null"):
@@ -400,11 +416,11 @@ def outputTable(board, subject, grade, element):
         myresult = mycursor.fetchall()
         for row in myresult:
             if row[4] not in action:
-                action[row[4]]={}
-                action[row[4]]["Closed"]=0
-                action[row[4]]["In Progress"]=0
-            action[row[4]]["Closed"]+=int(row[5])
-            action[row[4]]["In Progress"]+=int(row[6])
+                action[row[4]] = {}
+                action[row[4]]["Closed"] = 0
+                action[row[4]]["In Progress"] = 0
+            action[row[4]]["Closed"] += int(row[5])
+            action[row[4]]["In Progress"] += int(row[6])
         for i in action:
             c1.append(i)
             closed.append(action[i]["Closed"])
@@ -427,6 +443,8 @@ def outputTable(board, subject, grade, element):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('elements_of_action', 'figure'),
     [dash.dependencies.Input('boardId', 'value'),
@@ -444,7 +462,7 @@ def outputTable(board, subject, grade, action):
     )
     mycursor = mydb.cursor()
     element = {}
-    c1=[]
+    c1 = []
     closed = []
     in_progress = []
     if (board != "null" and subject != "null" and grade != "null" and action != "null"):
@@ -453,11 +471,11 @@ def outputTable(board, subject, grade, action):
         myresult = mycursor.fetchall()
         for row in myresult:
             if row[3] not in element:
-                element[row[3]]={}
-                element[row[3]]["Closed"]=0
-                element[row[3]]["In Progress"]=0
-            element[row[3]]["Closed"]+=int(row[5])
-            element[row[3]]["In Progress"]+=int(row[6])
+                element[row[3]] = {}
+                element[row[3]]["Closed"] = 0
+                element[row[3]]["In Progress"] = 0
+            element[row[3]]["Closed"] += int(row[5])
+            element[row[3]]["In Progress"] += int(row[6])
         for i in element:
             c1.append(i)
             closed.append(element[i]["Closed"])
@@ -480,14 +498,17 @@ def outputTable(board, subject, grade, action):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('weekswise_action_of_element', 'figure'),
     [dash.dependencies.Input('boardId', 'value'),
      dash.dependencies.Input('subjectId', 'value'),
      dash.dependencies.Input('gradeId', 'value'),
      dash.dependencies.Input('elementId', 'value'),
+     dash.dependencies.Input('action_select_id', 'value'),
      ])
-def outputTable(board, subject, grade, element):
+def outputTable(board, subject, grade, element, action_select):
     print("Started weekswise_action_of_element ")
     headers = []
     weeks = []
@@ -500,8 +521,13 @@ def outputTable(board, subject, grade, element):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
-        mycursor.execute(query, (board, subject, grade, element))
+        if action_select != "null":
+            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            mycursor.execute(query, (board, subject, grade, element, action_select))
+        else:
+            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
+            mycursor.execute(query, (board, subject, grade, element))
+
         myresult = mycursor.fetchall()
         pd_mid = []
         pd_action = []
@@ -560,14 +586,17 @@ def outputTable(board, subject, grade, element):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('chapter_of_element', 'figure'),
     [dash.dependencies.Input('boardId', 'value'),
      dash.dependencies.Input('subjectId', 'value'),
      dash.dependencies.Input('gradeId', 'value'),
      dash.dependencies.Input('elementId', 'value'),
+     dash.dependencies.Input('action_select_id', 'value'),
      ])
-def outputTable(board, subject, grade, element):
+def outputTable(board, subject, grade, element, action_select):
     print("started 5 ")
     mydb = pymysql.connect(
         host="localhost",
@@ -578,13 +607,17 @@ def outputTable(board, subject, grade, element):
     mycursor = mydb.cursor()
     headers = []
     table_values = []
-    board=tuple(board)
-    subject=tuple(subject)
-    grade=tuple(grade)
-    element=tuple(element)
+    board = tuple(board)
+    subject = tuple(subject)
+    grade = tuple(grade)
+    element = tuple(element)
     if (board != "null" and subject != "null" and grade != "null" and element != "null"):
-        query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s"
-        mycursor.execute(query, (board, subject, grade, element))
+        if action_select != "null":
+            query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            mycursor.execute(query, (board, subject, grade, element, action_select))
+        else:
+            query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s"
+            mycursor.execute(query, (board, subject, grade, element))
         myresult = mycursor.fetchall()
         headers.append("Chapter Name")
         chapters_headers = []
@@ -635,6 +668,8 @@ def outputTable(board, subject, grade, element):
         )],
         'layout': layout
     }
+
+
 @app.callback(
     dash.dependencies.Output('particular_mid', 'figure'),
     [dash.dependencies.Input('boardId', 'value'),
@@ -642,17 +677,18 @@ def outputTable(board, subject, grade, element):
      dash.dependencies.Input('gradeId', 'value'),
      dash.dependencies.Input('elementId', 'value'),
      dash.dependencies.Input('MIDid', 'value'),
+     dash.dependencies.Input('action_select_id', 'value'),
      ])
-def outputTable(board, subject, grade, element, mid):
+def outputTable(board, subject, grade, element, mid, action_select):
     print("started particular_mid")
     header = []
     table_data = {}
     headers = []
     data_pushed = []
-    board=tuple(board)
-    subject=tuple(subject)
-    grade=tuple(grade)
-    element=tuple(element)
+    board = tuple(board)
+    subject = tuple(subject)
+    grade = tuple(grade)
+    element = tuple(element)
     # mid=tuple(mid)
     if (board != "null" and subject != "null" and grade != "null" and element != "null" and mid != "null"):
         mydb = pymysql.connect(
@@ -662,8 +698,13 @@ def outputTable(board, subject, grade, element, mid):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
-        mycursor.execute(query, (board, subject, grade, element))
+        if action_select != "null":
+            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            mycursor.execute(query, (board, subject, grade, element, action_select))
+        else:
+            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
+            mycursor.execute(query, (board, subject, grade, element))
+
         myresult = mycursor.fetchall()
         pd_mid = []
         pd_action = []
@@ -718,6 +759,7 @@ def outputTable(board, subject, grade, element, mid):
         )],
         'layout': layout
     }
+
 
 @server.route('/')
 def render_dashboard():
