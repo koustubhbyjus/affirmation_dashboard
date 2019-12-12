@@ -393,11 +393,11 @@ class map:
 
     def getElements(self):
         elements = Counter(self.modified_data["Element"])
-        return elements.keys()
+        return list(elements.keys())
 
     def getActions(self):
         action = Counter(self.modified_data["Action"])
-        return action.keys()
+        return list(action.keys())
 
     def getMID(self):
         mid = []

@@ -69,7 +69,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='boardId',
                 options=[{'label': i, 'value': i} for i in boards],
-                value='null',
+                value=[],
                 multi=True,
                 placeholder="Select Boards"
             ),
@@ -80,7 +80,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='subjectId',
                 options=[{'label': i, 'value': i} for i in subjects],
-                value='null',
+                value=[],
                 multi=True,
                 placeholder="Select Subjects"
             ),
@@ -91,7 +91,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='gradeId',
                 options=[{'label': i, 'value': i} for i in grades],
-                value='null',
+                value=[],
                 multi=True,
                 placeholder="Select Grades"
             ),
@@ -102,7 +102,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='elementId',
                 options=[{'label': i, 'value': i} for i in elements],
-                value='null',
+                value=[],
                 multi=True,
                 placeholder="Select Elements"
             ),
@@ -113,7 +113,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='actionId',
                 options=[{'label': i, 'value': i} for i in actions],
-                value='null',
+                value=[],
                 multi=True,
                 placeholder="Select Actions"
             ),
@@ -124,7 +124,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(
                 id='MIDid',
                 options=[{'label': i, 'value': i} for i in mids],
-                value='null',
+                value=[],
                 placeholder="Select MID"
             ),
         ], style={'width': '19%', 'float': 'center', 'display': 'inline-block', 'padding-left': '70px'}),
@@ -184,7 +184,7 @@ app.layout = html.Div(children=[
         dcc.Dropdown(
             id='action_select_id',
             options=[{'label': i, 'value': i} for i in actions],
-            value='null',
+            value=[],
             multi=True,
             placeholder="Select Actions"
         ),
@@ -240,12 +240,15 @@ def outputTable(board, subject):
     mycursor = mydb.cursor()
     print("Started gradewise_table")
     grades = {}
-    board = tuple(board)
-    subject = tuple(subject)
-    print(board,subject)
-    if board != "null" and len(board) != 0 and subject != "null" and len(subject) != 0:
-        query = "SELECT * FROM tb_gradewise_progress where board in %s and subject in %s"
-        print(query)
+    print(board, subject)
+    if len(board) != 0 or len(subject) != 0:
+        if len(board) == 0:
+            board = boards
+        elif len(subject) == 0:
+            subject = subjects
+        query = "SELECT * FROM TB_gradewise_progress where board in %s and subject in %s"
+        tempStr = query % (board, subject)
+        print(tempStr)
         mycursor.execute(query, (board, subject))
         myresult = mycursor.fetchall()
         for row in myresult:
@@ -255,7 +258,6 @@ def outputTable(board, subject):
                 grades[row[2]]["In Progress"] = 0
             grades[row[2]]["Closed"] += int(row[3])
             grades[row[2]]["In Progress"] += int(row[4])
-
         for grade in grades:
             c1.append(grade)
             closed.append(grades[grade]["Closed"])
@@ -299,7 +301,13 @@ def outputTable(board, subject, grade):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
         query = "SELECT * FROM tb_element_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
@@ -354,7 +362,13 @@ def outputTable(board, subject, grade):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
         query = "SELECT * FROM tb_action_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
@@ -411,7 +425,15 @@ def outputTable(board, subject, grade, element):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and element != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(element)!=0):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0 or len(element) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
+        if len(element) == 0:
+            element = elements
         query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and element in %s"
         mycursor.execute(query, (board, subject, grade, element))
         myresult = mycursor.fetchall()
@@ -466,7 +488,15 @@ def outputTable(board, subject, grade, action):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and action != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(action)!=0):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0 or len(action) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
+        if len(action) == 0:
+            action = actions
         query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and action in %s"
         mycursor.execute(query, (board, subject, grade, action))
         myresult = mycursor.fetchall()
@@ -514,7 +544,15 @@ def outputTable(board, subject, grade, element, action_select):
     headers = []
     weeks = []
     rows_table = []
-    if (board != "null" and subject != "null" and grade != "null" and element != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(element)!=0):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0 or len(element) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
+        if len(element) == 0:
+            element = elements
         mydb = pymysql.connect(
             host="localhost",
             user="root",
@@ -522,7 +560,7 @@ def outputTable(board, subject, grade, element, action_select):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        if action_select != "null" and len(action_select)!=0:
+        if len(action_select) != 0:
             query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
@@ -608,12 +646,20 @@ def outputTable(board, subject, grade, element, action_select):
     mycursor = mydb.cursor()
     headers = []
     table_values = []
-    board = tuple(board)
-    subject = tuple(subject)
-    grade = tuple(grade)
-    element = tuple(element)
-    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
-        if action_select != "null" and len(action_select)!=0:
+    # board = tuple(board)
+    # subject = tuple(subject)
+    # grade = tuple(grade)
+    # element = tuple(element)
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0 or len(element) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
+        if len(element) == 0:
+            element = elements
+        if len(action_select) != 0:
             query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
@@ -691,7 +737,17 @@ def outputTable(board, subject, grade, element, mid, action_select):
     grade = tuple(grade)
     element = tuple(element)
     # mid=tuple(mid)
-    if (board != "null" and subject != "null" and grade != "null" and element != "null" and mid != "null"):
+    if (len(board) != 0 or len(subject) != 0 or len(grade) != 0 or len(element) != 0 or len(mid) != 0):
+        if len(board) == 0:
+            board = boards
+        if len(subject) == 0:
+            subject = subjects
+        if len(grade) == 0:
+            grade = grades
+        if len(element) == 0:
+            element = elements
+        if len(mid) == 0:
+            mid = mids
         mydb = pymysql.connect(
             host="localhost",
             user="root",
@@ -699,7 +755,7 @@ def outputTable(board, subject, grade, element, mid, action_select):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        if action_select != "null" and len(action_select)!=0:
+        if len(action_select) != 0:
             query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
