@@ -242,7 +242,8 @@ def outputTable(board, subject):
     grades = {}
     board = tuple(board)
     subject = tuple(subject)
-    if board != "null" and board != "None" and subject != "null" and subject != "None":
+    print(board,subject)
+    if board != "null" and len(board) != 0 and subject != "null" and len(subject) != 0:
         query = "SELECT * FROM tb_gradewise_progress where board in %s and subject in %s"
         print(query)
         mycursor.execute(query, (board, subject))
@@ -298,7 +299,7 @@ def outputTable(board, subject, grade):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0):
         query = "SELECT * FROM tb_element_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
@@ -353,7 +354,7 @@ def outputTable(board, subject, grade):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0):
         query = "SELECT * FROM tb_action_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
@@ -410,7 +411,7 @@ def outputTable(board, subject, grade, element):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and element != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(element)!=0):
         query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and element in %s"
         mycursor.execute(query, (board, subject, grade, element))
         myresult = mycursor.fetchall()
@@ -465,7 +466,7 @@ def outputTable(board, subject, grade, action):
     c1 = []
     closed = []
     in_progress = []
-    if (board != "null" and subject != "null" and grade != "null" and action != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and action != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(action)!=0):
         query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and action in %s"
         mycursor.execute(query, (board, subject, grade, action))
         myresult = mycursor.fetchall()
@@ -513,7 +514,7 @@ def outputTable(board, subject, grade, element, action_select):
     headers = []
     weeks = []
     rows_table = []
-    if (board != "null" and subject != "null" and grade != "null" and element != "null"):
+    if (board != "null" and subject != "null" and grade != "null" and element != "null" and len(board)!=0 and len(subject)!=0 and len(grade)!=0 and len(element)!=0):
         mydb = pymysql.connect(
             host="localhost",
             user="root",
@@ -521,7 +522,7 @@ def outputTable(board, subject, grade, element, action_select):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        if action_select != "null":
+        if action_select != "null" and len(action_select)!=0:
             query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
@@ -612,7 +613,7 @@ def outputTable(board, subject, grade, element, action_select):
     grade = tuple(grade)
     element = tuple(element)
     if (board != "null" and subject != "null" and grade != "null" and element != "null"):
-        if action_select != "null":
+        if action_select != "null" and len(action_select)!=0:
             query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
@@ -698,7 +699,7 @@ def outputTable(board, subject, grade, element, mid, action_select):
             database="db_affirmation"
         )
         mycursor = mydb.cursor()
-        if action_select != "null":
+        if action_select != "null" and len(action_select)!=0:
             query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
