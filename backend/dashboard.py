@@ -22,7 +22,7 @@ mydb = pymysql.connect(
     database="db_affirmation"
 )
 mycursor = mydb.cursor()
-query = 'select MID,Activity_Name,User,date_format(filled_date,"%d-%m-%Y"),Filled_Xp,Status from tb_affirmation_data Order by Filled_Date ASC'
+query = 'select MID,Activity_Name,User,date_format(filled_date,"%d-%m-%Y"),Filled_Xp,Status from TB_affirmation_data Order by Filled_Date ASC'
 mycursor.execute(query)
 myresult = mycursor.fetchall()
 MID = []
@@ -308,7 +308,7 @@ def outputTable(board, subject, grade):
             subject = subjects
         if len(grade) == 0:
             grade = grades
-        query = "SELECT * FROM tb_element_grades_progress where board in %s and subject in %s and grade in %s"
+        query = "SELECT * FROM TB_element_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
         for row in myresult:
@@ -369,7 +369,7 @@ def outputTable(board, subject, grade):
             subject = subjects
         if len(grade) == 0:
             grade = grades
-        query = "SELECT * FROM tb_action_grades_progress where board in %s and subject in %s and grade in %s"
+        query = "SELECT * FROM TB_action_grades_progress where board in %s and subject in %s and grade in %s"
         mycursor.execute(query, (board, subject, grade))
         myresult = mycursor.fetchall()
         for row in myresult:
@@ -434,7 +434,7 @@ def outputTable(board, subject, grade, element):
             grade = grades
         if len(element) == 0:
             element = elements
-        query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and element in %s"
+        query = "SELECT * FROM TB_action_progress where board in %s and subject in %s and grade in %s and element in %s"
         mycursor.execute(query, (board, subject, grade, element))
         myresult = mycursor.fetchall()
         for row in myresult:
@@ -497,7 +497,7 @@ def outputTable(board, subject, grade, action):
             grade = grades
         if len(action) == 0:
             action = actions
-        query = "SELECT * FROM tb_action_progress where board in %s and subject in %s and grade in %s and action in %s"
+        query = "SELECT * FROM TB_action_progress where board in %s and subject in %s and grade in %s and action in %s"
         mycursor.execute(query, (board, subject, grade, action))
         myresult = mycursor.fetchall()
         for row in myresult:
@@ -561,10 +561,10 @@ def outputTable(board, subject, grade, element, action_select):
         )
         mycursor = mydb.cursor()
         if len(action_select) != 0:
-            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            query = "select mid,action,week,status from TB_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
-            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
+            query = "select mid,action,week,status from TB_data where board in %s and subject in %s and grade in %s and element in %s"
             mycursor.execute(query, (board, subject, grade, element))
 
         myresult = mycursor.fetchall()
@@ -660,10 +660,10 @@ def outputTable(board, subject, grade, element, action_select):
         if len(element) == 0:
             element = elements
         if len(action_select) != 0:
-            query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            query = "SELECT * FROM TB_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
-            query = "SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s"
+            query = "SELECT * FROM TB_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s"
             mycursor.execute(query, (board, subject, grade, element))
         myresult = mycursor.fetchall()
         headers.append("Chapter Name")
@@ -683,7 +683,7 @@ def outputTable(board, subject, grade, element, action_select):
         chapters_headers = sorted(chapters_headers)
         for i in action_headers:
             for j in chapters_headers:
-                query = 'SELECT * FROM tb_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in (%s) and chapter in (%s) '
+                query = 'SELECT * FROM TB_action_progress_chapter where board in %s and subject in %s and grade in %s and element in %s and action in (%s) and chapter in (%s) '
                 mycursor.execute(query, (board, subject, grade, element, i, j))
                 myresult = mycursor.fetchall()
                 if i not in action_status:
@@ -756,10 +756,10 @@ def outputTable(board, subject, grade, element, mid, action_select):
         )
         mycursor = mydb.cursor()
         if len(action_select) != 0:
-            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
+            query = "select mid,action,week,status from TB_data where board in %s and subject in %s and grade in %s and element in %s and action in %s"
             mycursor.execute(query, (board, subject, grade, element, action_select))
         else:
-            query = "select mid,action,week,status from tb_data where board in %s and subject in %s and grade in %s and element in %s"
+            query = "select mid,action,week,status from TB_data where board in %s and subject in %s and grade in %s and element in %s"
             mycursor.execute(query, (board, subject, grade, element))
 
         myresult = mycursor.fetchall()

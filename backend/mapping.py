@@ -287,7 +287,7 @@ class map:
         print("Done")
 
     def action_progress(self):
-        self.mycursor.execute("DELETE from tb_data")
+        self.mycursor.execute("DELETE from TB_data")
         present_date = self.data["Date"][len(self.data["Date"]) - 1]
         present_date = datetime.strptime(present_date, "%d-%m-%Y")
         present_week = present_date.isocalendar()[1]
@@ -375,7 +375,7 @@ class map:
         DATA = {"Board":pd_board,"Subject":pd_subject,"Grade":pd_grade,"Element":pd_elemet,"MID": pd_mid, "Action": pd_action, "Week": pd_week, "Status": pd_status}
         pd_data = pd.DataFrame(DATA)
         for i,j in pd_data.iterrows():
-            self.mycursor.execute("Insert into tb_data(board,subject,grade,element,mid,action,week,status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",[j[0],j[1],j[2],j[3],j[4],j[5],j[6],j[7]])
+            self.mycursor.execute("Insert into TB_data(board,subject,grade,element,mid,action,week,status) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",[j[0],j[1],j[2],j[3],j[4],j[5],j[6],j[7]])
         self.mydb.commit()
         print("Done")
 
