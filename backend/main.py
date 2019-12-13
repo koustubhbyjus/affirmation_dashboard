@@ -15,7 +15,7 @@ class main:
         database="db_affirmation"
     )
     mycursor = mydb.cursor()
-    query = 'select MID,Activity_Name,User,date_format(filled_date,"%d-%m-%Y"),Filled_Xp,Status from tb_affirmation_data Order by Filled_Date ASC'
+    query = 'select MID,Activity_Name,User,date_format(filled_date,"%d-%m-%Y"),Filled_Xp,Status from TB_affirmation_data Order by Filled_Date ASC'
     mycursor.execute(query)
     myresult = mycursor.fetchall()
     MID=[]

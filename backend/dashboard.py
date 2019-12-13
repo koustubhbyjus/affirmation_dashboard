@@ -262,7 +262,7 @@ def outputTable(board, subject):
             c1.append(grade)
             closed.append(grades[grade]["Closed"])
             in_progress.append(grades[grade]["In Progress"])
-    layout = go.Layout(title='Gradewise Project Progress', )
+    layout = go.Layout(title='Gradewise'+str(board)+' and subject '+str(subject)+'Project Progress', )
     print("Ended gradewise_table")
     mydb.commit()
     mycursor.close()
@@ -322,7 +322,7 @@ def outputTable(board, subject, grade):
             c1.append(i)
             closed.append(element[i]["Closed"])
             in_progress.append(element[i]["In Progress"])
-    layout = go.Layout(title='Elements  of grade  Progress')
+    layout = go.Layout(title='Elements of grade'+str(grade)+' Progress where board and subject are '+str(board)+' '+str(subject))
     print("Ended grade_elements")
     mydb.commit()
     mycursor.close()
@@ -383,7 +383,7 @@ def outputTable(board, subject, grade):
             c1.append(i)
             closed.append(action[i]["Closed"])
             in_progress.append(action[i]["In Progress"])
-    layout = go.Layout(title='Actions  of grade Progress')
+    layout = go.Layout(title='Actions of grade'+str(grade)+' Progress where board and subject are '+str(board)+' '+str(subject))
     print("Ended grade_elements")
     mydb.commit()
     mycursor.close()
@@ -449,7 +449,7 @@ def outputTable(board, subject, grade, element):
             closed.append(action[i]["Closed"])
             in_progress.append(action[i]["In Progress"])
 
-    layout = go.Layout(title='Actions  of  grade ')
+    layout = go.Layout(title='Actions of grade '+str(grade)+' Progress where board ,subject and element are '+str(board)+' '+str(subject)+' '+str(element))
     print("ended actions_of_element")
     mydb.commit()
     mycursor.close()
@@ -512,7 +512,7 @@ def outputTable(board, subject, grade, action):
             closed.append(element[i]["Closed"])
             in_progress.append(element[i]["In Progress"])
 
-    layout = go.Layout(title='Elements  of grade ')
+    layout = go.Layout(title='Elements of grade '+str(grade)+' Progress where board ,subject and element are '+str(board)+' '+str(subject)+' '+str(action))
     print("ended elements_of_action")
     mydb.commit()
     mycursor.close()
@@ -610,7 +610,7 @@ def outputTable(board, subject, grade, element, action_select):
         rows_table.append(list(weeks))
         for i in data_to_be_pushed:
             rows_table.append(data_to_be_pushed[i])
-    layout = go.Layout(title='Week wise progress of Actions of element of grade of subject of Board')
+    layout = go.Layout(title='Week wise progress of Actions  of element '+str(element)+' of grade '+str(grade)+' of subject '+str(subject)+' of Board '+str(board))
     print("Ended weekswise_action_of_element")
     return {
         'data': [go.Table(
